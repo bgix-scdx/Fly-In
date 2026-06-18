@@ -1,3 +1,3 @@
-from .screen_manager import screen
+from .screen_manager import Motor
 
-__all__ = ["screen"]
+__all__ = ["Motor"]

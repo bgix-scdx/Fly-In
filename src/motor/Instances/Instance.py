@@ -1,4 +1,4 @@
-from pygame import Vector2
+from pygame import Vector2, display
 from pydantic import BaseModel
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -14,5 +14,5 @@ class Instance(ABC):
     color: Tuple[int, int, int]
 
     @abstractmethod
-    def execute(self) -> None:
+    def execute(self, screen: display) -> None:
         pass

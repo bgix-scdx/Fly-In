@@ -63,19 +63,19 @@ class screen():
         keys = pygame.key.get_pressed()
         steps = 10
         changed = [0, 0]
-        if keys[pygame.K_w]:
+        if keys[pygame.K_s]:
             changed[1] = 1
             if self.speed.y > -self.maxspeed:
                 self.speed.y -= self.maxspeed / steps
-        elif keys[pygame.K_s]:
+        elif keys[pygame.K_w]:
             changed[1] = 1
             if self.speed.y < self.maxspeed:
                 self.speed.y += self.maxspeed / steps
-        if keys[pygame.K_a]:
+        if keys[pygame.K_d]:
             changed[0] = 1
             if self.speed.x > -self.maxspeed:
                 self.speed.x -= self.maxspeed / steps
-        elif keys[pygame.K_d]:
+        elif keys[pygame.K_a]:
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps

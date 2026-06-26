@@ -1,3 +1,5 @@
+from enum import Enum
+
 class Color():
     R: int = 255
     G: int = 255
@@ -40,3 +42,19 @@ class Color():
 
     def __str__(self) -> "Color":
         return f"({self.R}, {self.G}, {self.B})"
+
+    def rgb(self) -> None:
+        return (self.R, self.G, self.B)
+
+class ColorPallet(Enum):
+    gold = Color(205, 255, 0)
+    darkred = Color(200, 0, 0)
+    maroon = Color(125, 125, 0)
+    crimson = Color(255, 0, 0)
+    black = Color(50, 50, 50)
+    orange = Color(255, 155)
+    brown = Color(125, 0, 0)
+    purple = Color(200, 0, 255)
+    green = Color(0, 200, 0)
+    red = Color(200, 0, 0)
+    violet = Color(200, 0, 100)

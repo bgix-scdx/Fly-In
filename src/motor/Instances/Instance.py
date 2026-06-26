@@ -23,6 +23,9 @@ class EasingStyle(Enum):
     def Quad(t: float) -> float:
         return t*t
 
+    def Busted(t: float) -> float:
+        return t**2
+
     @staticmethod
     def Sine(t: float) -> float:
         return 1 - cos(t * pi / 2)
@@ -51,7 +54,7 @@ class Instance(ABC):
     name: str = "Instance"
     position: Vector2 = Vector2(0, 0)
     color: Color = Color()
-    __tween: Any
+    __tween: Any = None
     Parent: Any
 
     def __init__(self, name: str):
@@ -64,6 +67,8 @@ class Instance(ABC):
     def tween(self, targets: Dict[str, Any],
               duration: str, Type: EasingDirection = EasingStyle.Linear,
               Direction: EasingDirection = EasingDirection.In) -> None:
+        while self.__tween:
+            sleep(0.001)
         self.__tween = Thread(target=self.tweenThread)
         self.__tween.targets = targets.copy()
         self.__tween.duration = duration
@@ -85,7 +90,7 @@ class Instance(ABC):
                 start = base[i]
                 final_v = start + (goal - start) * type[1](t, type[0])
                 setattr(self, i, final_v)
-            sleep(0.01)
+                sleep(0)
         for i in targets.keys():
             v = targets.get(i)
             setattr(self, i, v)

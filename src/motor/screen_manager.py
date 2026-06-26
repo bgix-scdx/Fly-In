@@ -3,6 +3,7 @@ from math import floor
 from .Scene import Scene
 from threading import Thread
 
+
 class screen():
     def __init__(self, resolution: int):
         print("Starting Screen...")
@@ -20,7 +21,7 @@ class screen():
     def ScreenLoop(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((0, 0))
-                                        #pygame.FULLSCREEN)
+# pygame.FULLSCREEN)
         self.camera = pygame.Vector2(0, 0)
         self.clock = pygame.time.Clock()
         self.center = pygame.Vector2(0, 0)
@@ -28,19 +29,18 @@ class screen():
         while self.running is True:
             self.screen.fill((0, 0, 0))
             self.KeyHeld()
-            pos = self.center + [self.size[0], self.size[1]]
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE and self.fullscreen:
                         self.running = False
-                        
             if self.current.Freecam:
                 font = pygame.font.SysFont("impact", 25)
-                text = font.render(f"x: {self.center.x}, y: {self.center.y}",
+                text = font.render(f"x: {self.current.CameraPosition.x},"
+                                   f"y: {self.current.CameraPosition.y}",
                                    True, (255, 255, 255))
-                self.screen.blit(text, [0,0])
+                self.screen.blit(text, [0, 0])
             for obj in self.current.Objects.values():
                 obj.execute(self)
             pygame.display.flip()
@@ -79,7 +79,8 @@ class screen():
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps
-        self.center += [floor(self.speed.x), floor(self.speed.y)]
+        self.current.CameraPosition += pygame.Vector2(floor(self.speed.x),
+                                                      floor(self.speed.y))
         for i, v in enumerate(self.speed):
             if changed[i] == 0:
                 if self.speed[i] > -1 and self.speed[i] < 1:
@@ -112,10 +113,10 @@ class screen():
 #                             self.center = self.current["position"]
 #                     if event.key == pygame.K_TAB and not self.fullscreen:
 #                         self.screen = pygame.display.set_mode((0, 0),
-#                                                                pygame.FULLSCREEN)
+#                                                           pygame.FULLSCREEN)
 #                         self.fullscreen = True
 #                     elif event.key == pygame.K_TAB and self.fullscreen:
 #                         self.screen = pygame.display.set_mode((self.res * 16,
-#                                                                self.res * 10),
+#                                                              self.res * 10),
 #                                                                pygame.SCALED)
 #                         self.fullscreen = False

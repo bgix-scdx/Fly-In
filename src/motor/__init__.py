@@ -1,5 +1,7 @@
 from .screen_manager import screen
 from .Scene import Scene
-from .Instances.square import Square
+from .Instances import Square, EasingStyle, EasingDirection
+from .Color import Color
 
-__all__ = ["screen", "Scene", "Square"]
+__all__ = ["screen", "Scene", "Square", "EasingDirection", "EasingStyle",
+           "Color"]

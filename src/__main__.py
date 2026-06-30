@@ -1,99 +1,58 @@
 from .map_parser import Loop_Through
-from .motor import screen, Square, EasingStyle, EasingDirection, Color, Line, ColorPallet, Image
+from .motor import screen, Square, EasingStyle, EasingDirection
+from .motor import Color, Square, ColorPallet
+from .drone.cells import Cell, ZoneType
+from .drone.drones import Drone
 from time import sleep
 from sys import argv
-from pygame import Vector2, image, transform
-from threading import Thread, current_thread
-from enum import Enum
-val = Loop_Through()
-from random import randint
+from pygame import Vector2
+from .InitialDisplay import DisplayCells
+
+
+unsetmaps = Loop_Through()
 maps = {}
 
-duration = 1
-object = Square("test")
+for i in unsetmaps:
+    data = unsetmaps.get(i)
+    i = i.split("/")[len(i.split("/")) - 1].split(".")[0]
+
+    mapdata = {}
+    mapdata["Cells"] = {}
+    for cell in data["cells"]:
+        newcell = Cell()
+        newcell.Position = Vector2(cell["position"][0], cell["position"][1])
+        newcell.Name = cell["name"]
+        newcell.Color3 = getattr(ColorPallet, cell["settings"]["color"]) if hasattr(ColorPallet, cell["settings"]["color"]) else Color(0, 0, 0)
+        if cell["settings"].get("max_drones"):
+            newcell.MaxDrone = cell["settings"]["max_drones"]
+        if cell["settings"].get("zone"):
+            newcell.Zone = getattr(ZoneType, cell["settings"].get("zone"))
+        mapdata["Cells"][newcell.Name] = newcell
+
+    for connection in data["connections"]:
+        for name in connection:
+            cell: Cell = mapdata["Cells"][name]
+            for name2 in connection:
+                if name == name2:
+                    continue
+                cell2: Cell = mapdata["Cells"][name2]
+
+                cell.Connections[cell2.Name] = cell2
+    maps[i] = mapdata
+
+
 visual = screen(150)
 visual.current.Freecam = True
 
-target = val.get(argv[1])
+target = maps.get(argv[1])
 scale = 1.5
 size = 50
 dif = 10
 
-for i in target["connections"]:
-    cells = target["cells"]
-    pos = Vector2(0, 0)
-    fpos = Vector2(0, 0)
 
-    for t in target["cells"]:
-        if t["name"] == i[1]:
-            pos = Vector2(t["position"][0] * 100 + size / 2, t["position"][1] * 100 + size / 2) * scale
-        elif t["name"] == i[0]:
-            fpos = Vector2(t["position"][0] * 100 + size / 2, t["position"][1] * 100 + size / 2) * scale
-    fpos = fpos
-    object = Line(f"{i[0]}-{i[1]}")
-    object.position = pos
-    object.size = fpos
-    object.width = round(5 * scale)
-    visual.current.Add(object)
+DisplayCells(visual, maps)
 
-
-def rainbow() -> None:
-    current = current_thread()
-    duration = 1
-    while current.visual.running:
-        sleep(duration)
-        current.obj.tween({"color": Color(255, 0, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-        sleep(duration)
-        current.obj.tween({"color": Color(255, 255, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-        sleep(duration)
-        current.obj.tween({"color": Color(0, 255, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-        sleep(duration)
-        current.obj.tween({"color": Color(0, 255, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-        sleep(duration)
-        current.obj.tween({"color": Color(0, 0, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-        sleep(duration)
-        current.obj.tween({"color": Color(255, 0, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
-
-
-for i in target["cells"]:
-    border = (size - (size - dif)) / 2
-
-    object = Square(i["name"])
-    object.size = Vector2(size, size) * scale
-    if (hasattr(ColorPallet, i["settings"]["color"])
-            or i["settings"]["color"] == "rainbow"):
-        if i["settings"]["color"] == "rainbow":
-            t = Thread(target=rainbow)
-            t.visual = visual
-            t.obj = object
-            t.start()
-        else:
-            colpal = ColorPallet[i["settings"]["color"]].value
-            object.color = colpal
-    else:
-        print(i["settings"]["color"])
-    object.position = Vector2(i["position"][0] * 100, i["position"][1] * 100) * scale
-    visual.current.Add(object)
-    cache = object = Square(f"{i["name"]}cache")
-    cache.position = Vector2(i["position"][0] * 100 + border, i["position"][1] * 100 + border) * scale
-    object.size = Vector2(size - dif, size - dif) * scale
-    cache.color = Color(0, 0, 0)
-    visual.current.Add(cache)
-
-test = Square("Baka")
-test.size = Vector2(50, 50)
-visual.current.Add(test)
-
-while visual.running:
-    sleep(1)
-    test.tween({"position": Vector2(randint(0, 1000), randint(0, 1000)),
-                "orientation": test.orientation + 360 * 2,
-                "color": Color(randint(0, 255), randint(0, 255),randint(0, 255))},
-               1, EasingStyle.Busted, EasingDirection.In)
-    pass
+# cube = Square("BAkus")
+# visual.current.Add(cube)
+# cube.tween({"position": Vector2(1000, 1000), "size": Vector2(100, 100),
+#             "orientation": 360, "color": Color(255, 0, 0)}, 4, EasingStyle.Sine, EasingDirection.InOut)

@@ -22,7 +22,7 @@ install:
 	$(VENV)/bin/uv sync
 run:
 	echo "Running Project $(MAIN)"
-	$(VENV)/bin/uv run python -m src "maps/challenger/01_the_impossible_dream.txt"
+	$(VENV)/bin/uv run python -m src "maps/easy/02_simple_fork.txt"
 
 debug:
 	$(PYTHON) -m pdb $(MAIN)

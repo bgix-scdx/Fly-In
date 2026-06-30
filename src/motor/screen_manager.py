@@ -9,7 +9,7 @@ class screen():
         print("Starting Screen...")
         self.res = resolution
         self.running = True
-        self.TPS = 120
+        self.TPS = 60
         self.fullscreen = False
         self.speed = pygame.Vector2(0, 0)
         self.maxspeed = 10
@@ -34,7 +34,13 @@ class screen():
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE and self.fullscreen:
+                        print("Baka")
                         self.running = False
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 4:
+                        self.current.Zoom += 0.1
+                    elif event.button == 5 and self.current.Zoom >= 0.1:
+                        self.current.Zoom -= 0.1
             if self.current.Freecam:
                 font = pygame.font.SysFont("impact", 25)
                 text = font.render(f"x: {self.current.CameraPosition.x},"
@@ -79,8 +85,8 @@ class screen():
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps
-        self.current.CameraPosition += pygame.Vector2(floor(self.speed.x),
-                                                      floor(self.speed.y))
+        self.current.CameraPosition += pygame.Vector2(floor(self.speed.x * self.current.Zoom),
+                                                      floor(self.speed.y * self.current.Zoom))
         for i, v in enumerate(self.speed):
             if changed[i] == 0:
                 if self.speed[i] > -1 and self.speed[i] < 1:

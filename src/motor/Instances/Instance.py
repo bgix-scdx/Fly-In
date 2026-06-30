@@ -5,7 +5,6 @@ from typing import Dict, Any
 from threading import Thread
 from time import time, sleep
 from math import cos, pi
-from ..Color import Color
 from ..screen_manager import screen
 from typing import Callable
 
@@ -51,6 +50,7 @@ class EasingDirection(Enum):
 
 
 class Instance(ABC):
+    from ..Color import Color
     name: str = "Instance"
     position: Vector2 = Vector2(0, 0)
     color: Color = Color()
@@ -90,7 +90,7 @@ class Instance(ABC):
                 start = base[i]
                 final_v = start + (goal - start) * type[1](t, type[0])
                 setattr(self, i, final_v)
-                sleep(0)
+                sleep(0.01)
         for i in targets.keys():
             v = targets.get(i)
             setattr(self, i, v)

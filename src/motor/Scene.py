@@ -7,6 +7,7 @@ class Scene():
     CameraPosition = Vector2(0, 0)
     Objects = {}
     Name = "NewScene"
+    Zoom = 1
 
     def __init__(self, name: str) -> None:
         self.Name = name

@@ -1,4 +1,7 @@
 from enum import Enum
+from threading import current_thread
+from time import sleep
+
 
 class Color():
     R: int = 255
@@ -46,15 +49,44 @@ class Color():
     def rgb(self) -> None:
         return (self.R, self.G, self.B)
 
+
+def rainbow() -> None:
+    from .Instances.Instance import EasingStyle, EasingDirection
+    current = current_thread()
+    duration = 1
+    while current.visual.running:
+        sleep(duration)
+        current.obj.tween({"color": Color(255, 0, 0)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+        sleep(duration)
+        current.obj.tween({"color": Color(255, 255, 0)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+        sleep(duration)
+        current.obj.tween({"color": Color(0, 255, 0)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+        sleep(duration)
+        current.obj.tween({"color": Color(0, 255, 255)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+        sleep(duration)
+        current.obj.tween({"color": Color(0, 0, 255)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+        sleep(duration)
+        current.obj.tween({"color": Color(255, 0, 255)},
+                          duration, EasingStyle.Linear, EasingDirection.In)
+
+
 class ColorPallet(Enum):
     gold = Color(205, 255, 0)
     darkred = Color(200, 0, 0)
     maroon = Color(125, 125, 0)
     crimson = Color(255, 0, 0)
     black = Color(50, 50, 50)
-    orange = Color(255, 155)
+    orange = Color(255, 155, 0)
+    blue = Color(0, 0, 255)
+    yellow = Color(155, 255, 0)
     brown = Color(125, 0, 0)
     purple = Color(200, 0, 255)
     green = Color(0, 200, 0)
     red = Color(200, 0, 0)
     violet = Color(200, 0, 100)
+    rainbow = rainbow

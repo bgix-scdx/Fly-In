@@ -3,7 +3,6 @@ from math import floor
 from .Scene import Scene
 from threading import Thread
 
-
 class screen():
     def __init__(self, resolution: int):
         print("Starting Screen...")
@@ -56,11 +55,15 @@ class screen():
     def GetScene(self, name: str) -> Scene:
         """Look for a scene, if not found it will create one."""
         for i in self.scenes:
-            if i.Name is name:
+            if i.Name == name:
                 return i
+        print("Creating New Scene")
         newscene = Scene(name)
         self.scenes.append(newscene)
         return newscene
+
+    def ChangeScene(self, scene):
+        self.current = scene
 
     def KeyHeld(self) -> None:
         if not self.current.Freecam:

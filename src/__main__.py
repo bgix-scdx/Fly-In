@@ -2,7 +2,6 @@ from .map_parser import Loop_Through
 from .motor import screen, Square, EasingStyle, EasingDirection
 from .motor import Color, Square, ColorPallet
 from .drone.cells import Cell, ZoneType
-from .drone.drones import Drone
 from time import sleep
 from sys import argv
 from pygame import Vector2
@@ -22,7 +21,7 @@ for i in unsetmaps:
         newcell = Cell()
         newcell.Position = Vector2(cell["position"][0], cell["position"][1])
         newcell.Name = cell["name"]
-        newcell.Color3 = getattr(ColorPallet, cell["settings"]["color"]) if hasattr(ColorPallet, cell["settings"]["color"]) else Color(0, 0, 0)
+        newcell.Color3 = getattr(ColorPallet, cell["settings"]["color"]).value if hasattr(ColorPallet, cell["settings"]["color"]) else Color(0, 0, 0)
         if cell["settings"].get("max_drones"):
             newcell.MaxDrone = cell["settings"]["max_drones"]
         if cell["settings"].get("zone"):
@@ -42,15 +41,12 @@ for i in unsetmaps:
 
 
 visual = screen(150)
-visual.current.Freecam = True
 
-target = maps.get(argv[1])
-scale = 1.5
-size = 50
-dif = 10
+cell_size = 100
+cell_inner = 80
 
-
-DisplayCells(visual, maps)
+cell_size = 100
+DisplayCells(visual, maps, cell_size, cell_inner)
 
 # cube = Square("BAkus")
 # visual.current.Add(cube)

@@ -18,7 +18,7 @@ class Cell():
     MaxDrone: int = 1
     Drones: List[Any] = []
     Color3: Color
-    Slot: Any
+    Slot: Any = []
     Zone: ZoneType = ZoneType.normal
     Display: List[Instance] = []
     Connections: Dict[str, "Cell"] = {}
@@ -27,6 +27,7 @@ class Cell():
         self.Display = []
         self.Connections = {}
         self.Drones = []
+        self.Slot = []
 
     def __str__(self):
         val = "\nConnections ->\n"

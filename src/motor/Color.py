@@ -89,4 +89,4 @@ class ColorPallet(Enum):
     green = Color(0, 200, 0)
     red = Color(200, 0, 0)
     violet = Color(200, 0, 100)
-    rainbow = rainbow
+    rainbow = Color(255, 255, 255)

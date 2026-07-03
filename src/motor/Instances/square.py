@@ -1,5 +1,5 @@
 from .Instance import Instance
-from pygame import Vector2, draw, transform, surface, SRCALPHA
+from pygame import Vector2, draw, transform, surface, SRCALPHA, font
 from ..screen_manager import screen
 from typing import Any
 
@@ -41,7 +41,25 @@ class Image(Instance):
     border_size: int = 0
     edge_size: int = 0
 
+    def __init__(self, name):
+        super().__init__(name)
+        self.size: Vector2 = Vector2(10, 10)
+        self.orientation = 0
+        self.texture = None
+        self.order_size = 0
+        self.edge_size = 0
+
     def execute(self, visual: screen) -> None:
         if self.texture:
             visual.screen.blit(self.texture, self.position +
                                visual.current.CameraPosition)
+
+class Text(Instance):
+    text = "Text"
+    size = 20
+
+    def execute(self, visual: screen) -> None:
+        tfont = font.SysFont("impact", int(self.size * visual.current.Zoom))
+        text = tfont.render(self.text, True, int(self.color))
+        visual.screen.blit(text, (self.position * visual.current.Zoom +
+                                    visual.current.CameraPosition))

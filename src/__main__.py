@@ -1,7 +1,7 @@
 from .map_parser import Loop_Through
 from .motor import screen, Square, EasingStyle, EasingDirection
 from .motor import Color, Square, ColorPallet
-from .drone.cells import Cell, ZoneType
+from .drone.cells import Cell, ZoneType, Connection
 from time import sleep
 from sys import argv
 from pygame import Vector2
@@ -35,8 +35,12 @@ for i in unsetmaps:
                 if name == name2:
                     continue
                 cell2: Cell = mapdata["Cells"][name2]
-
-                cell.Connections[cell2.Name] = cell2
+                connect = Connection()
+                connect.Parent = cell
+                connect.Target = cell2
+                connect.Drones = []
+                connect.Maxdrones = -1
+                cell.Connections[cell2.Name] = connect
     maps[i] = mapdata
 
 

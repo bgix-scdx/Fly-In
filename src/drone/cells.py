@@ -12,6 +12,13 @@ class ZoneType(Enum):
     restricted = 2
 
 
+class Connection():
+    Maxdrones: int = -1
+    Parent: "Cell"
+    Target: "Cell"
+    Drones: List[Any]
+
+
 class Cell():
     Name: str
     Position: Vector2
@@ -21,7 +28,7 @@ class Cell():
     Slot: Any = []
     Zone: ZoneType = ZoneType.normal
     Display: List[Instance] = []
-    Connections: Dict[str, "Cell"] = {}
+    Connections: Dict[str, Connection] = {}
 
     def __init__(self):
         self.Display = []

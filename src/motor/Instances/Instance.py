@@ -90,7 +90,7 @@ class Instance(ABC):
                 start = base[i]
                 final_v = start + (goal - start) * type[1](t, type[0])
                 setattr(self, i, final_v)
-                sleep(0.01)
+                sleep(0)
         for i in targets.keys():
             v = targets.get(i)
             setattr(self, i, v)

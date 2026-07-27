@@ -8,7 +8,7 @@ from enum import Enum
 class ZoneType(Enum):
     normal = 1
     blocked = 0
-    priority = 1
+    priority = 0
     restricted = 2
 
 
@@ -17,6 +17,10 @@ class Connection():
     Parent: "Cell"
     Target: "Cell"
     Drones: List[Any]
+
+    def __str__(self) -> str:
+        return ("\033[38;02;0;255;255mConnection:\033[0m "
+                f"{self.Parent.Name} -> {self.Target.Name}")
 
 
 class Cell():
@@ -33,6 +37,7 @@ class Cell():
     def __init__(self):
         self.Display = []
         self.Connections = {}
+        self.Position = Vector2(0, 0)
         self.Drones = []
         self.Slot = []
 

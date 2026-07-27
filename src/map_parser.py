@@ -14,6 +14,14 @@ def Parse_Hub(text: List[str]) -> Dict[str, Any]:
     return result
 
 
+def Parse_Connection(text: List[str]) -> Dict[str, Any]:
+    connection = text[1].split("-")
+    max_drones = 1
+    if len(text) > 2:
+        max_drones = int(text[2].split("=")[1].split("]")[0])
+    return {"connection": connection, "max_drone": max_drones}
+
+
 def Parse_File(filepath: str, name: str) -> Dict[str, Any]:
     result = {
         "map": name,
@@ -26,13 +34,13 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any]:
             for text in lines:
                 if text == "\n" or text == "":
                     continue
-                split = text.split()
-                if "hub" in split[0]:
-                    result["cells"].append(Parse_Hub(split))
-                elif "connection" in split[0]:
-                    result["connections"].append(split[1].split("-"))
-                elif "nb_drones" in split[0]:
-                    result["nb_drones"] = int(split[1])
+                splittxt = text.split()
+                if "hub" in splittxt[0]:
+                    result["cells"].append(Parse_Hub(splittxt))
+                elif "connection" in splittxt[0]:
+                    result["connections"].append(Parse_Connection(splittxt))
+                elif "nb_drones" in splittxt[0]:
+                    result["nb_drones"] = int(splittxt[1])
     except FileNotFoundError as e:
         print(f"File not found: {e.filename}")
         return None

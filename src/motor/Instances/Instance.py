@@ -59,6 +59,7 @@ class Instance(ABC):
 
     def __init__(self, name: str):
         self.name = name
+        self.color = self.Color(255, 255, 255)
 
     @abstractmethod
     def execute(self, visual: screen) -> Any:

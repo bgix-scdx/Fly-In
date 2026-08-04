@@ -1,10 +1,12 @@
 import pygame
 from math import floor
 from .Scene import Scene
+from typing import Callable, List, Any
 from threading import Thread
 
+
 class screen():
-    def __init__(self, resolution: int, exec):
+    def __init__(self, resolution: int, exec: Callable[[Any], Any]):
         print("Starting Screen...")
         self.res = resolution
         self.running = True
@@ -12,12 +14,16 @@ class screen():
         self.fullscreen = False
         self.speed = pygame.Vector2(0, 0)
         self.maxspeed = 10
-        self.scenes = []
-        self.current = self.GetScene("Default")
+        self.scenes: List[Scene] = []
+        self.current: Scene = self.GetScene("Default")
         self.thread = Thread(target=exec)
-        self.thread.visual = self
+        self.thread.visual = self  # type: ignore[attr-defined]
         self.thread.start()
-        self.ScreenLoop()
+        try:
+            self.ScreenLoop()
+        except KeyboardInterrupt:
+            self.running = False
+            raise KeyboardInterrupt
 
     def ScreenLoop(self) -> None:
         pygame.init()
@@ -57,7 +63,7 @@ class screen():
         self.scenes.append(newscene)
         return newscene
 
-    def ChangeScene(self, scene):
+    def ChangeScene(self, scene: Scene) -> None:
         self.current = scene
 
     def KeyHeld(self) -> None:
@@ -83,8 +89,13 @@ class screen():
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps
-        self.current.CameraPosition += pygame.Vector2(floor(self.speed.x * self.current.Zoom),
-                                                      floor(self.speed.y * self.current.Zoom))
+        self.current.CameraPosition += pygame.Vector2(floor(
+                                                            self.speed.x
+                                                            * self.current.Zoom
+                                                            ),
+                                                      floor(self.speed.y
+                                                            *
+                                                            self.current.Zoom))
         for i, v in enumerate(self.speed):
             if changed[i] == 0:
                 if self.speed[i] > -1 and self.speed[i] < 1:

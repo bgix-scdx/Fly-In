@@ -3,14 +3,14 @@ import os
 
 
 def Parse_Hub(text: List[str]) -> Dict[str, Any]:
-    result = {
+    result: Dict[str, Any] = {
         "name": text[1],
         "position": [int(text[2]), int(text[3])],
         "settings": {}
     }
     for val in text[4:]:
-        val = val.strip("[").strip("]").split("=")
-        result["settings"][val[0]] = val[1]
+        value = val.strip("[").strip("]").split("=")
+        result["settings"][value[0]] = value[1]
     return result
 
 
@@ -22,8 +22,8 @@ def Parse_Connection(text: List[str]) -> Dict[str, Any]:
     return {"connection": connection, "max_drone": max_drones}
 
 
-def Parse_File(filepath: str, name: str) -> Dict[str, Any]:
-    result = {
+def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
+    result: Dict[str, Any] = {
         "map": name,
         "connections": [],
         "cells": []
@@ -57,12 +57,13 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any]:
 
 
 def Loop_Through(dir: str = "maps", filename: str = "",
-                 final: Dict[str, Dict[str, Any]] = {}) -> Dict[str, Any]:
+                 final: Dict[str, Dict[str, Any] | None] = {}
+                 ) -> Dict[str, Any]:
     if not os.path.isdir(dir) and os.path.isfile(dir):
         try:
             final[dir] = Parse_File(dir, filename)
         except (IndexError, ValueError):
-            print(f"File: {dir} is invalid !")
+            print(f"\033[38;2;255;255mFile: {dir} is invalid !\033[0m")
     elif os.path.isdir(dir):
         for _, file in enumerate(os.listdir(dir)):
             final = Loop_Through(dir + "/" + file, file)

@@ -1,5 +1,6 @@
 from enum import Enum
-from threading import current_thread
+from threading import current_thread, Thread
+from typing import Tuple
 from time import sleep
 
 
@@ -40,39 +41,40 @@ class Color():
             other = Color(other, other, other)
         return Color(self.R - other.R, self.G - other.G, self.B - other.B)
 
-    def __radd__(self, other) -> "Color":
+    def __radd__(self, other: "Color") -> "Color":
         return self.__add__(other)
 
-    def __str__(self) -> "Color":
+    def __str__(self) -> str:
         return f"({self.R}, {self.G}, {self.B})"
 
-    def rgb(self) -> None:
+    def rgb(self) -> Tuple[int, int, int]:
         return (self.R, self.G, self.B)
 
 
 def rainbow() -> None:
     from .Instances.Instance import EasingStyle, EasingDirection
-    current = current_thread()
+    current: Thread = current_thread()
+    obj = current.obj  # type: ignore[attr-defined]
     duration = 1
-    while current.visual.running:
+    while current.visual.running:  # type: ignore[attr-defined]
         sleep(duration)
-        current.obj.tween({"color": Color(255, 0, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(255, 0, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
         sleep(duration)
-        current.obj.tween({"color": Color(255, 255, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(255, 255, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
         sleep(duration)
-        current.obj.tween({"color": Color(0, 255, 0)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(0, 255, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
         sleep(duration)
-        current.obj.tween({"color": Color(0, 255, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(0, 255, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
         sleep(duration)
-        current.obj.tween({"color": Color(0, 0, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(0, 0, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
         sleep(duration)
-        current.obj.tween({"color": Color(255, 0, 255)},
-                          duration, EasingStyle.Linear, EasingDirection.In)
+        obj.tween({"color": Color(255, 0, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
 
 
 class ColorPallet(Enum):
@@ -93,3 +95,7 @@ class ColorPallet(Enum):
     lime = Color(125, 255, 0)
     cyan = Color(0, 255, 255)
     magenta = Color(255, 125, 0)
+    lightbrown = Color(255, 255, 125)
+    lightblue = Color(125, 125, 255)
+    teal = Color(125, 255, 255)
+    beige = Color(255, 255, 125)

@@ -1,14 +1,14 @@
 from typing import Dict, List, Any
 from pygame import Vector2
-from ..motor.Color import Color
-from ..motor.Instances import Instance
+from ..motor.Color import Color  # type: ignore[misc]
+from ..motor.Instances import Instance  # type: ignore[misc]
 from enum import Enum
 
 
 class ZoneType(Enum):
     normal = 1
     blocked = 0
-    priority = 0
+    priority = 3
     restricted = 2
 
 
@@ -34,15 +34,16 @@ class Cell():
     Display: List[Instance] = []
     Connections: Dict[str, Connection] = {}
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.Display = []
         self.Connections = {}
         self.Position = Vector2(0, 0)
         self.Drones = []
         self.Slot = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         val = "\nConnections ->\n"
         for i in self.Connections:
             val += f"\t{i},\n"
-        return f"{self.Name}: {self.Position}, {self.MaxDrone}, {self.Zone} {val}"
+        return (f"{self.Name}: {self.Position},"
+                f"{self.MaxDrone}, {self.Zone} {val}")

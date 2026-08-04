@@ -41,7 +41,7 @@ class Image(Instance):
     border_size: int = 0
     edge_size: int = 0
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         super().__init__(name)
         self.size: Vector2 = Vector2(10, 10)
         self.orientation = 0
@@ -54,6 +54,7 @@ class Image(Instance):
             visual.screen.blit(self.texture, self.position +
                                visual.current.CameraPosition)
 
+
 class Text(Instance):
     text = "Text"
     size = 20
@@ -62,4 +63,4 @@ class Text(Instance):
         tfont = font.SysFont("impact", int(self.size * visual.current.Zoom))
         text = tfont.render(self.text, True, int(self.color))
         visual.screen.blit(text, (self.position * visual.current.Zoom +
-                                    visual.current.CameraPosition))
+                                  visual.current.CameraPosition))

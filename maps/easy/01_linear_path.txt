@@ -1,38 +1,11 @@
 # Easy Level 1: Simple linear path
+nb_drones: 2
 
+start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+hub: waypoint2 2 0 [color=blue]
+end_hub: goal 3 0 [color=red]
 
-nb_drones: 8
-
-start_hub: start 0 1 [color=green]
-hub: split1 1 0 [color=cyan max_drones=4]
-hub: split2 1 2 [color=cyan max_drones=4]
-
-hub: split3 3 0 [color=cyan max_drones=1]
-hub: split4 3 2 [color=cyan max_drones=1]
-
-hub: mini_block 1 1 [color=yellow max_drones=4 zone=blocked]
-
-hub: meeting_point1 2 1 [color=yellow max_drones=4 zone=restricted]
-
-hub: dead_end1 2 2 [color=black max_drones=1]
-
-end_hub: goal 5 1 [color=red]
-
-connection: start-split1 [max_link_capacity=2]
-connection: start-mini_block [max_link_capacity=4]
-connection: start-split2 [max_link_capacity=2]
-
-connection: split2-meeting_point1
-connection: split1-meeting_point1
-
-connection: meeting_point1-split3
-connection: meeting_point1-split4
-
-connection: split3-goal
-connection: split4-goal
-
-connection: mini_block-meeting_point1
-
-connection: meeting_point1-dead_end1
-
-connection: meeting_point1-goal [max_link_capacity=2]
+connection: start-waypoint1
+connection: waypoint1-waypoint2
+connection: waypoint2-goal

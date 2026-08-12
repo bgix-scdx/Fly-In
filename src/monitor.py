@@ -12,6 +12,7 @@ from functools import cache
 
 
 def getmapdata(raw_map: Dict[str, Any]) -> Any:
+    '''Turn the raw map data into a well organised dict'''
     map: Dict[str, Dict[str, Cell]] = {}
     for name in raw_map:
         parsedmap = raw_map.get(name)
@@ -76,6 +77,7 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
 
 def make_cells_scenes(visual: screen,
                       maps: Dict[str, Any]) -> Dict[str, Scene]:
+    '''Assemble the scene for the maps'''
     map_scenes = {}
     cell_settings = {}
 
@@ -191,7 +193,7 @@ def make_cells_scenes(visual: screen,
 
 def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
                   scene: Scene, path: Any) -> List[Drone] | None:
-
+    '''Create and setup all drone for usage'''
     cell_settings = load_settings("settings/cells.json")
     drone_settings = load_settings("settings/drone.json")
 
@@ -238,6 +240,7 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
 
 
 def start() -> None:
+    '''Start the program andd checks errors'''
     thread = current_thread()
     visual: screen = thread.visual  # type: ignore[attr-defined]
     mapdata, raw_map = None, None
@@ -334,6 +337,7 @@ def start() -> None:
 
 
 def ProgessBar(a: int, b: int) -> None:
+    '''Display a progress bar'''
     full, empty = "▣", "□"
     text = f"\033[38;2;0;255m {full*(a)}\033[38;2;255m{empty*(b-a)} "
     print()
@@ -345,6 +349,7 @@ def ProgessBar(a: int, b: int) -> None:
 
 def CheckValidity(Cell: Cell, Connection: Connection,
                   last: Cell | None, path: List[Cell]) -> bool:
+    '''Check if the cells and connection are valid'''
     if Cell is last or Cell in path:  # cell comp
         return False
     elif Cell.Zone is ZoneType.blocked:  # cell types
@@ -355,6 +360,7 @@ def CheckValidity(Cell: Cell, Connection: Connection,
 def CheckPossiblePath(Current: Cell, Last: Cell | None,
                       Target: Cell, Path: List[Cell],
                       Steps: int, GoalPaths: Any) -> Any:
+    '''Calculate all possible paths from a map'''
     connection = Current.Connections
     if Current is Target:
         return [Path + [Current, Steps]]
@@ -380,6 +386,7 @@ def CheckPossiblePath(Current: Cell, Last: Cell | None,
 
 @cache
 def load_settings(path: str) -> Any | None:
+    '''load settings from a json settings'''
     try:
         with open(path, "r") as f:
             return (load(f))

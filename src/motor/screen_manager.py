@@ -47,8 +47,11 @@ class screen():
                         self.current.Zoom += 0.1
                     elif event.button == 5 and self.current.Zoom >= 0.1:
                         self.current.Zoom -= 0.1
-            for obj in self.current.Objects.values():
-                obj.execute(self)
+            try:
+                for obj in self.current.Objects.values():
+                    obj.execute(self)
+            except RuntimeError:
+                pass
             pygame.display.flip()
             self.clock.tick(self.TPS)
         pygame.quit()

@@ -70,8 +70,6 @@ class Drone():
                 self.Connect.Remove(self)
                 self.Connect = None
             self.MoveAlong()
-        else:
-            print(f"refused: D{self.ID}")
 
     def MoveAlong(self) -> None:
         ''''''
@@ -97,9 +95,6 @@ class Drone():
             self.DesinationReached = True
             return
 
-        print(f"{self.ID} -> {nextcell.Name}, {self.Current.Name}"
-              f" [{nextco.isOk()}] | "
-              f"[{len(nextco.Drones)} / {nextco.Maxdrones}]")
         oknext = nextcell.isOk() or nextcell is self.Target
 
         if (oknext and nextcell.Zone and nextco.isOk()):
@@ -216,10 +211,6 @@ class Drone():
         calculated = ((size *
                        Vector2(difference, difference))
                       + Vector2(size/8, size/8))
-        self.Image.tween({"position": calculated + Vector2(bordersize,
-                                                           bordersize)},
-                         self.FlyTime,
-                         EasingStyle.Sine, EasingDirection.InOut)
         logger_text = f"D{self.ID}-"
         print(f"\033[38;2;0;255;255mD\033[38;2;0;0;255m{self.ID}", end="")
         if self.Moving >= 1:
@@ -227,15 +218,26 @@ class Drone():
                   f" \033[38;2;0;255;0m{self.Next.Name}")
             logger_text += f"{self.Next.Name} "
             self.Moving = 0
-            self.Image.tween({"position": (self.getslotpos(calculated)
-                                           - Vector2(size/8, size/8))}, 0.1)
+            animatedpos = self.getslotpos(calculated)
+            self.Image.tween({"position": (animatedpos
+                                           - Vector2(size/8, size/8))},
+                             self.FlyTime)
         else:
+            self.Image.tween({"position": calculated + Vector2(bordersize,
+                                                               bordersize)},
+                             self.FlyTime,
+                             EasingStyle.Sine, EasingDirection.InOut)
             print(f"\033[38;2;100;100;255m In Connection: "
                   f"\033[38;2;0;255;255m{self.Current.Name} ->"
                   f"{self.Next.Name}")
             logger_text += (f"{self.Current.Name}-"
                             f"{self.Next.Name} ")
         print("\033[0m", end="")
+        if self.Next is self.Target:
+            self.DesinationReached = True
+            if self.Connect:
+                self.Connect.Remove(self)
+            self.Next.Remove(self)
         return logger_text
 
     def getslotpos(self, position: Vector2) -> Vector2:
@@ -248,7 +250,8 @@ class Drone():
             inner = 120
         img = self.Image
         border = (size - inner) / 8
-        maxslot = int(self.Next.MaxDrone)
+        maxslot = (int(self.Next.MaxDrone) if self.Next is not self.Target
+                   else 1)
         usedslots = self.Next.Drones.index(self)
         maxroot = sqrt(maxslot)
 

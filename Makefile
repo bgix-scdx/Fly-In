@@ -20,7 +20,7 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirement.txt
 	$(VENV)/bin/poetry config cache-dir $(VENV)/poetrycache
-	$(VENV)/bin/poetry install --no-root
+# 	 $(VENV)/bin/poetry install
 	$(VENV)/bin/uv sync
 
 run:

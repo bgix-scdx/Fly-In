@@ -1,7 +1,6 @@
 from .cells import Cell, ZoneType, Connection
 from ..motor.Instances import Instance, EasingDirection  # type: ignore[misc]
 from ..motor.Instances import EasingStyle  # type: ignore[misc]
-from ..motor.Color import Color  # type: ignore[misc]
 from pygame import Vector2
 from math import sqrt, floor
 from typing import Dict, List, Any

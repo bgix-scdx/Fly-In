@@ -1,13 +1,13 @@
 from pygame import Vector2
-from typing import Any
+from typing import Any, Dict
 
 
 class Scene():
     Freecam = False
     CameraPosition = Vector2(0, 0)
-    Objects = {}
-    Name = "NewScene"
-    Zoom = 1
+    Objects: Dict[str, Any] = {}
+    Name: str = "NewScene"
+    Zoom: float = 1
 
     def __init__(self, name: str) -> None:
         self.Name = name

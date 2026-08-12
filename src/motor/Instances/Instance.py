@@ -22,6 +22,7 @@ class EasingStyle(Enum):
     def Quad(t: float) -> float:
         return t*t
 
+    @staticmethod
     def Busted(t: float) -> float:
         return t**2
 
@@ -41,7 +42,7 @@ class EasingDirection(Enum):
 
     @staticmethod
     def InOut(t: float, shape: Callable[[float], float]) -> float:
-        v: int = 0
+        v: float = 0
         if t < 0.5:
             v = shape(2*t) / 2
         else:
@@ -59,14 +60,15 @@ class Instance(ABC):
 
     def __init__(self, name: str):
         self.name = name
+        self.color = self.Color(255, 255, 255)
 
     @abstractmethod
     def execute(self, visual: screen) -> Any:
         pass
 
     def tween(self, targets: Dict[str, Any],
-              duration: str, Type: EasingDirection = EasingStyle.Linear,
-              Direction: EasingDirection = EasingDirection.In) -> None:
+              duration: str, Type: Any = EasingStyle.Linear,
+              Direction: Any = EasingDirection.In) -> None:
         while self.__tween:
             sleep(0.001)
         self.__tween = Thread(target=self.tweenThread)
@@ -75,7 +77,7 @@ class Instance(ABC):
         self.__tween.type = [Type, Direction]
         self.__tween.start()
 
-    def tweenThread(self):
+    def tweenThread(self) -> None:
         started = time()
         base = {}
         targets = self.__tween.targets

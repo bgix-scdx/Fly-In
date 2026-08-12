@@ -1,10 +1,12 @@
 import pygame
 from math import floor
 from .Scene import Scene
+from typing import Callable, List, Any
 from threading import Thread
 
+
 class screen():
-    def __init__(self, resolution: int):
+    def __init__(self, resolution: int, exec: Callable[[Any], Any]):
         print("Starting Screen...")
         self.res = resolution
         self.running = True
@@ -12,10 +14,16 @@ class screen():
         self.fullscreen = False
         self.speed = pygame.Vector2(0, 0)
         self.maxspeed = 10
-        self.scenes = []
-        self.current = self.GetScene("Default")
-        self.thread = Thread(target=self.ScreenLoop)
+        self.scenes: List[Scene] = []
+        self.current: Scene = self.GetScene("Default")
+        self.thread = Thread(target=exec)
+        self.thread.visual = self  # type: ignore[attr-defined]
         self.thread.start()
+        try:
+            self.ScreenLoop()
+        except KeyboardInterrupt:
+            self.running = False
+            raise KeyboardInterrupt
 
     def ScreenLoop(self) -> None:
         pygame.init()
@@ -33,19 +41,12 @@ class screen():
                     self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE and self.fullscreen:
-                        print("Baka")
                         self.running = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:
                         self.current.Zoom += 0.1
                     elif event.button == 5 and self.current.Zoom >= 0.1:
                         self.current.Zoom -= 0.1
-            if self.current.Freecam:
-                font = pygame.font.SysFont("impact", 25)
-                text = font.render(f"x: {self.current.CameraPosition.x},"
-                                   f"y: {self.current.CameraPosition.y}",
-                                   True, (255, 255, 255))
-                self.screen.blit(text, [0, 0])
             for obj in self.current.Objects.values():
                 obj.execute(self)
             pygame.display.flip()
@@ -62,7 +63,7 @@ class screen():
         self.scenes.append(newscene)
         return newscene
 
-    def ChangeScene(self, scene):
+    def ChangeScene(self, scene: Scene) -> None:
         self.current = scene
 
     def KeyHeld(self) -> None:
@@ -76,7 +77,7 @@ class screen():
             changed[1] = 1
             if self.speed.y > -self.maxspeed:
                 self.speed.y -= self.maxspeed / steps
-        elif keys[pygame.K_w]:
+        elif keys[pygame.K_z]:
             changed[1] = 1
             if self.speed.y < self.maxspeed:
                 self.speed.y += self.maxspeed / steps
@@ -84,12 +85,17 @@ class screen():
             changed[0] = 1
             if self.speed.x > -self.maxspeed:
                 self.speed.x -= self.maxspeed / steps
-        elif keys[pygame.K_a]:
+        elif keys[pygame.K_q]:
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps
-        self.current.CameraPosition += pygame.Vector2(floor(self.speed.x * self.current.Zoom),
-                                                      floor(self.speed.y * self.current.Zoom))
+        self.current.CameraPosition += pygame.Vector2(floor(
+                                                            self.speed.x
+                                                            * self.current.Zoom
+                                                            ),
+                                                      floor(self.speed.y
+                                                            *
+                                                            self.current.Zoom))
         for i, v in enumerate(self.speed):
             if changed[i] == 0:
                 if self.speed[i] > -1 and self.speed[i] < 1:

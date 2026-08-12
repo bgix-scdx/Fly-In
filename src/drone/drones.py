@@ -1,9 +1,12 @@
 from .cells import Cell, ZoneType, Connection
-from typing import List
-from ..motor.Instances import Instance, EasingDirection, EasingStyle
-from time import sleep
+from ..motor.Instances import Instance, EasingDirection  # type: ignore[misc]
+from ..motor.Instances import EasingStyle  # type: ignore[misc]
+from ..motor.Color import Color  # type: ignore[misc]
 from pygame import Vector2
 from math import sqrt, floor
+from typing import Dict, List, Any
+
+import math
 
 
 class Drone():
@@ -13,145 +16,251 @@ class Drone():
     CellList: List[Cell]
     Target: Cell
     Moving: float = 1
-    Settings = {}
+    Settings: Dict[str, Any] = {}
+    Connect: Connection | None = None
     Image: Instance
-    InConnection: Connection = None
-    Path: List[Cell] = []
+    Path: List[Cell] | None = []
+    DesinationReached: bool = False
+    PrecalculatedPaths: Dict[int, List[Cell]] | None = None
+    FlyTime: float = 0.1
+    InConnection: bool = False
+    Steps: int
+    Active = False
+    ID: int = 0
 
-    def __init__(self, starting: Cell, celllst: List[Cell], target: Cell, Settings):
+    def __init__(self, starting: Cell, celllst: List[Cell],
+                 target: Cell, Settings: Dict[str, Any],
+                 paths: Dict[int, List[Cell]], id: int):
+        '''Start the drone'''
         self.Current = starting
         self.CellList = celllst
         self.Settings = Settings
         self.Target = target
         self.Previous = None
         self.Next = None
+        self.Moving: float = 0
         self.Path = None
+        self.ID = id
+        self.PrecalculatedPaths = paths
         self.Current.Drones.insert(len(self.Current.Drones), self)
 
-    def Move(self):
-        if (self.Moving >= 1 or self.Moving <= 0) and (not self.Path or (self.Path and not CheckValidity(self.Current, self.Current.Connections.get(self.Path[len(self.Path) - 1].Name)))):
-            last = [] if not self.Previous else [self.Previous]
-            moves, path, mmove, found = BackTrackCheck(self.Current, 2147483647, last, 0, False, self.Target)
-            if found:
-                nextcell = path[len(path) - 1]
-                self.Path = path
-                connect = self.Current.Connections.get(self.Path[len(self.Path) - 1].Name)
-                if self.InConnection:
-                    self.InConnection.Drones.remove(self)
-                    print(len(self.InConnection.Drones))
-                    self.InConnection = None
-                self.InConnection = connect
-                connect.Drones.append(self)
-                self.Path.remove(nextcell)
-                if not nextcell:
-                    print("Not Found")
-                    return
-                else:
-                    self.Next = nextcell
-                    self.Moving = 0
-        elif (self.Moving >= 1 or self.Moving <= 0) and self.Path:
-            nextcell = self.Path[len(self.Path) - 1]
-            connect = self.Current.Connections.get(self.Path[len(self.Path) - 1].Name)
-            if self.InConnection:
-                self.InConnection.Drones.remove(self)
-                print(len(self.InConnection.Drones))
-                self.InConnection = None
-            self.InConnection = connect
-            connect.Drones.append(self)
-            self.Path.remove(nextcell)
-            if not nextcell:
-                print("Not Found")
-                return
-            else:
-                self.Next = nextcell
-                self.Moving = 0
-
-
-    def moveimg(self) -> None:
-        size = self.Settings.get("size")
-        border = (size - self.Settings.get("inner")) / 2
-        if not self.Next:
+    def Move(self) -> None:
+        '''Precalculate the drone movement before they visibly move'''
+        self.Active = False
+        if self.DesinationReached:
             return
-        if self.Moving == 0:
-            # goes to the center animation
-            self.Current.Drones.remove(self)
-            self.Next.Drones.insert(len(self.Next.Drones), self)
-            calculated = ((self.Current.Position * 150) +
-                          (Vector2(size, size) - self.Image.size) / 2)
-            self.Image.tween({"position": calculated}, 0.1,
-                             EasingStyle.Sine, EasingDirection.In)
-        self.Moving += 1 / self.Current.Zone.value
-        calculated = ((self.Current.Position
-                       + ((self.Next.Position - self.Current.Position)
-                          * self.Moving)) * 150
-                          + (Vector2(size, size) - self.Image.size) / 2)
+        try:
+            if 1 > self.Moving > 0 and (self.Next.isOk() or
+                                        self.Next.Drones.index(self) >= 0):
+                self.Active = True
+                self.InConnection = True
+                self.Next.Insert(self)
+                if self.Connect:
+                    self.Connect.Remove(self)
+                    self.Connect = None
+                return
+            elif 1 > self.Moving > 0:
+                return
+        except ValueError:
+            print(f"Bakus Mogus {self.ID}")
+            return
+        if not self.Path:
+            self.get_valid_path()
+        elif self.Path:
+            if self.Connect:
+                self.Connect.Remove(self)
+                self.Connect = None
+            self.MoveAlong()
+        else:
+            print(f"refused: D{self.ID}")
 
-        self.Image.tween({"position": calculated}, 0.1, EasingStyle.Sine,
-                         EasingDirection.InOut)
-        if self.Moving == 1:
-            pos = self.getslotpos()
-            if pos.x != self.Image.position.x or pos.y != self.Image.position.y:
-                self.Image.tween({"position": pos}, 0.1, EasingStyle.Sine,
-                                 EasingDirection.Out)
-            self.Previous = self.Current
-            self.Current = self.Next
-            self.Next = None
+    def MoveAlong(self) -> None:
+        ''''''
+        if not self.Path:
+            return
+        nextcell = None
+        nextco = None
 
-    def getslotpos(self) -> Vector2:
+        self.Previous = self.Current
+        self.Current = self.Next
+
+        try:
+            nextcell = self.Path[self.Path.index(self.Next) + 1]
+            nextco = nextcell.Connections.get(self.Next.Name)
+            if not nextco:
+                return
+        except IndexError:
+            self.Active = True
+            self.Next.Remove(self)
+            if self.Connect:
+                self.Connect.Remove(self)
+                self.Connect = None
+            self.DesinationReached = True
+            return
+
+        print(f"{self.ID} -> {nextcell.Name}, {self.Current.Name}"
+              f" [{nextco.isOk()}] | "
+              f"[{len(nextco.Drones)} / {nextco.Maxdrones}]")
+        oknext = nextcell.isOk() or nextcell is self.Target
+
+        if (oknext and nextcell.Zone and nextco.isOk()):
+            if self.Next:
+                self.Next.Remove(self)
+            if self.Connect:
+                self.Connect.Remove(self)
+            self.Connect = nextco
+            self.Connect.Insert(self)
+            self.Next = nextcell
+            self.Next.Insert(self)
+        elif (not oknext and nextcell.Zone
+                is ZoneType.restricted and nextco.isOk()):
+            if self.Next:
+                self.Next.Remove(self)
+            if self.Connect:
+                self.Connect.Remove(self)
+            self.Connect = nextco
+            self.Connect.Insert(self)
+            self.Next = nextcell
+        else:
+            self.Switch_Road()
+
+        self.Active = True
+
+    def Switch_Road(self) -> None:
+        '''Switch the road of the drone if the cell ahead is invalid'''
+        taken = None
+        steps = math.inf
+        if not self.PrecalculatedPaths:
+            return
+        for i in self.PrecalculatedPaths:
+            paths = self.PrecalculatedPaths.get(i)
+            if not paths:
+                continue
+            for path in paths:
+                try:
+                    next_cell = path[path.index(self.Current) + 1]
+                    current = self.Current.Connections
+                    target_connection = current.get(next_cell.Name)
+                    if not target_connection or (next_cell is self.Next):
+                        continue
+                    if not target_connection.isOk() or not next_cell.isOk():
+                        continue
+                    if next_cell.Zone is ZoneType.priority:
+                        i -= 1
+                    if (i < steps):
+                        taken = path
+                        steps = i
+                except IndexError:
+                    continue
+                except ValueError:
+                    continue
+        if taken:
+            self.Path = taken
+            if self.Next:
+                self.Next.Remove(self)
+            self.Next = taken[self.Path.index(self.Current) + 1]
+            target_connection = self.Current.Connections.get(self.Next.Name)
+            self.Connect = target_connection if target_connection else None
+            self.Next.Insert(self)
+
+    def get_valid_path(self) -> None:
+        if not self.PrecalculatedPaths:
+            return
+        chosen = math.inf
+        for i in self.PrecalculatedPaths:
+            if int(i) < chosen:
+                path = self.PrecalculatedPaths.get(i)
+                if not path:
+                    continue
+                for p in path:
+                    try:
+                        nextcell: Cell = p[p.index(self.Current) + 1]
+                        connect = nextcell.Connections.get(self.Current.Name)
+                        if not connect:
+                            continue
+                        if ((nextcell.isOk() or nextcell is self.Next)
+                                and (connect.isOk()
+                                     or connect is self.Connect)):
+                            if self.Next:
+                                self.Next.Remove(self)
+                                self.Next = None
+                            if self.Connect:
+                                self.Connect.Remove(self)
+                                self.Connect = None
+                            self.Path = p
+                            self.Next = self.Path[1]
+                            self.Connect = connect
+                            self.Connect.Insert(self)
+                            self.Next.Insert(self)
+                            chosen = int(i)
+                            self.Active = True
+                    except ValueError:
+                        continue
+
+    def moveimg(self) -> str:
+        '''Vissibly move the drone on the visual'''
+        if not self.Next or not self.Active or self.DesinationReached:
+            return ""
         size = self.Settings.get("size")
-        border = (size - self.Settings.get("inner")) / 2
+        border = self.Settings.get("inner")
+        if not size or not isinstance(size, int):
+            size = 150 * 2
+        else:
+            size *= 2
+        if not border or not isinstance(border, int):
+            border = 120
+        bordersize = (size - border) / 32
+        self.Moving += 1 if self.Next.Zone is not ZoneType.restricted else 0.5
+        difference = (self.Current.Position + (self.Next.Position -
+                                               self.Current.Position)
+                      * self.Moving)
+        calculated = ((size *
+                       Vector2(difference, difference))
+                      + Vector2(size/8, size/8))
+        self.Image.tween({"position": calculated + Vector2(bordersize,
+                                                           bordersize)},
+                         self.FlyTime,
+                         EasingStyle.Sine, EasingDirection.InOut)
+        logger_text = f"D{self.ID}-"
+        print(f"\033[38;2;0;255;255mD\033[38;2;0;0;255m{self.ID}", end="")
+        if self.Moving >= 1:
+            print(f"\033[38;2;100;255;100m Inside Cell:"
+                  f" \033[38;2;0;255;0m{self.Next.Name}")
+            logger_text += f"{self.Next.Name} "
+            self.Moving = 0
+            self.Image.tween({"position": (self.getslotpos(calculated)
+                                           - Vector2(size/8, size/8))}, 0.1)
+        else:
+            print(f"\033[38;2;100;100;255m In Connection: "
+                  f"\033[38;2;0;255;255m{self.Current.Name} ->"
+                  f"{self.Next.Name}")
+            logger_text += (f"{self.Current.Name}-"
+                            f"{self.Next.Name} ")
+        print("\033[0m", end="")
+        return logger_text
+
+    def getslotpos(self, position: Vector2) -> Vector2:
+        '''Get the position within the cell for nice placement.'''
+        size = self.Settings.get("size")
+        inner = self.Settings.get("inner")
+        if not size or not isinstance(size, int):
+            size = 150
+        if not inner or not isinstance(inner, int):
+            inner = 120
         img = self.Image
-        center = ((self.Current.Position +
-                   ((self.Next.Position - self.Current.Position) *
-                    self.Moving)) * 150 + Vector2(border, border))
+        border = (size - inner) / 8
         maxslot = int(self.Next.MaxDrone)
-        usedslots = len(self.Next.Drones)
+        usedslots = self.Next.Drones.index(self)
         maxroot = sqrt(maxslot)
 
-        side = usedslots % maxroot if usedslots % maxroot > 1 else 0.5 
+        side = usedslots % maxroot if maxslot > 1 else 0.5
         upper = floor((usedslots) / maxroot) % maxroot if maxslot > 2 else 0.5
-        # side = side * 1.1 if side > 0.5 else side * 0.9 if side < 0.5 else side
-        # upper = upper * 1.1 if upper > 0.5 else upper * 0.9 if upper < 0.5 else upper
-        return center + Vector2(img.size.x * side, img.size.y * upper)
+        return (position + (Vector2(img.size.x * side, img.size.y * upper))
+                + Vector2(border, border))
 
-def CheckValidity(cell: Cell, connection: Connection) -> bool:
-    validcell = False
-    validconnection = False
 
-    if len(cell.Slot) < int(cell.MaxDrone):
-        validcell = True
-    if connection and len(connection.Drones) < int(cell.MaxDrone):
-        validconnection = True
-
-    return(validcell is True and validconnection is True)
-
-def BackTrackCheck(cell: Cell, moves, path: List[Cell], maxmoves, found, target) -> any:
-    if (path.count(cell) > 0 or (found and moves > maxmoves)
-            or cell.Zone == ZoneType.blocked):
-        return moves, path, maxmoves, found
-    else:
-        fmoves, freached, fpath, fmax = moves, found, path, maxmoves
-        for tmpcell in cell.Connections:
-            tmpcell = cell.Connections.get(tmpcell).Target
-            reached = found
-            lmoves = moves
-            lmax = maxmoves
-            lpath = []
-            tmppath = path + [cell]
-            if path.count(tmpcell) > 0:
-                continue
-            if tmpcell != target:
-                lmoves, lpath, lmax, reached = BackTrackCheck(tmpcell, moves,
-                                                              tmppath, maxmoves,
-                                                              found, target)
-                if not reached:
-                    continue
-            else:
-                lmoves = tmpcell.Zone.value - (1 if tmpcell.Zone == ZoneType.priority else 0)
-                reached = True
-            if fmoves > lmoves:
-                freached = reached
-                fpath = lpath + [tmpcell]
-                fmoves = lmoves + tmpcell.Zone.value - (1 if tmpcell.Zone == ZoneType.priority else 0)
-                fmax = lmax + tmpcell.Zone.value - (1 if tmpcell.Zone == ZoneType.priority else 0)
-        return fmoves, fpath, fmax, freached
+def check_validity(cell: Cell | Connection) -> bool:
+    '''Check if a cell is valid'''
+    if len(cell.Drones) >= cell.MaxDrone:
+        return False
+    return True

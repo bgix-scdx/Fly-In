@@ -18,10 +18,11 @@ install:
 	chmod 777 $(VENV)/bin/activate 
 	$(VENV)/bin/activate
 	$(PIP) install --upgrade pip
-	$(PIP) install poetry
+	$(PIP) install -r requirement.txt
 	$(VENV)/bin/poetry config cache-dir $(VENV)/poetrycache
-	$(VENV)/bin/poetry install
+	$(VENV)/bin/poetry install --no-root
 	$(VENV)/bin/uv sync
+
 run:
 	echo "Running Project $(MAIN)"
 	$(VENV)/bin/uv run python -m src $(MAP) 
@@ -34,7 +35,7 @@ lclean:
 
 clean:
 	rm -rf $(VENV)
-	rm -rf __pycache__ src/motor/Instances/__pycache__ src/motor/__pycache__ src/drone/__pycache__ src/__pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv llm_sdk/__pycache__ poetry.lock uv.lock
+	rm -rf __pycache__ src/motor/Instances/__pycache__ src/motor/__pycache__ src/drone/__pycache__ src/__pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv llm_sdk/__pycache__ poetry.lock uv.lock logs.txt
 
 lint:
 	$(MYPY) ./src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

@@ -1,8 +1,9 @@
 [project]
-name = "Fly-In"
-version = "0.1.0"
+name = "FLY-IN"
+version = "1.0.0"
 description = "Fly in"
 requires-python = ">=3.10"
+
 dependencies = [
     "uv",
     "pydantic",

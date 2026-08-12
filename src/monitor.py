@@ -215,9 +215,9 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
     drone_list = []
     for i in range(drone_count):
         drone = Drone(starting_cells, ending_cells, ending_cells,
-                      {"size": cell_size, "inner": cell_size - drone_size})
+                      {"size": cell_size, "inner": cell_size - drone_size},
+                      path, i)
         drone.Name = f"Drone {i+1}"
-        drone.ID = i
         drone.Position = Vector2(0, 0)
         drone.PrecalculatedPaths = path
         drone.Current = starting_cells

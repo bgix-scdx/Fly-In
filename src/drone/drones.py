@@ -62,7 +62,6 @@ class Drone():
             elif 1 > self.Moving > 0:
                 return
         except ValueError:
-            print(f"Bakus Mogus {self.ID}")
             return
         if not self.Path:
             self.get_valid_path()

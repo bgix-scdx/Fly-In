@@ -9,6 +9,7 @@ from .drone.cells import Cell, ZoneType, Connection
 from pygame import Vector2
 from time import sleep
 from functools import cache
+from threading import Thread
 
 
 def getmapdata(raw_map: Dict[str, Any]) -> Any:
@@ -35,7 +36,6 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
             else:
                 print(f"-> Color {color} not found")
                 return None, None
-
             if (zone and hasattr(ZoneType, celldata["settings"].get("zone"))):
                 cell.Zone = getattr(ZoneType, zone)
             if (celldata["settings"].get("max_drones")):
@@ -73,6 +73,42 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
                     connect2.Maxdrones = connect_count
                     cell2.Connections[cell1.Name] = connect2
     return map, raw_map
+
+
+def rainbow() -> None:
+    from .motor import EasingStyle, EasingDirection
+    current: Thread = current_thread()
+    obj = current.obj  # type: ignore[attr-defined]
+    duration = 1
+    while current.visual.running:  # type: ignore[attr-defined]
+        sleep(duration)
+        obj.tween({"color": Color(255, 0, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
+        if not current.visual.running:  # type: ignore[attr-defined]
+            break
+        sleep(duration)
+        obj.tween({"color": Color(255, 255, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
+        if not current.visual.running:  # type: ignore[attr-defined]
+            break
+        sleep(duration)
+        obj.tween({"color": Color(0, 255, 0)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
+        if not current.visual.running:  # type: ignore[attr-defined]
+            break
+        sleep(duration)
+        obj.tween({"color": Color(0, 255, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
+        if not current.visual.running:  # type: ignore[attr-defined]
+            break
+        sleep(duration)
+        obj.tween({"color": Color(0, 0, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
+        if not current.visual.running:  # type: ignore[attr-defined]
+            break
+        sleep(duration)
+        obj.tween({"color": Color(255, 0, 255)},
+                  duration, EasingStyle.Linear, EasingDirection.In)
 
 
 def make_cells_scenes(visual: screen,
@@ -160,6 +196,11 @@ def make_cells_scenes(visual: screen,
                                           bgcell.Position[1] * cell_size * 2)
             if bgcell.Color3:
                 background.color = bgcell.Color3
+                if str(bgcell.Color3) == str(Color(255, 255, 255)):
+                    newthread = Thread(target=rainbow)
+                    newthread.visual = visual  # type: ignore[attr-defined]
+                    newthread.obj = background  # type: ignore[attr-defined]
+                    newthread.start()
             local_scene.Add(background)
 
         for cell_name in maps[map_name]["Cells"]:
@@ -319,7 +360,7 @@ def start() -> None:
                 reached += 1
         if reached >= len(drone_list):
             break
-        final_text += f" == Turn {turn} ==\n{log}+\n\n"
+        final_text += f" == Turn {turn} ==\n{log}\n\n"
         ProgessBar(reached, len(drone_list))
         sleep(1)
     if not visual.running:

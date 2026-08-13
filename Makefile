@@ -35,7 +35,7 @@ lclean:
 
 clean:
 	rm -rf $(VENV)
-	rm -rf __pycache__ src/motor/Instances/__pycache__ src/motor/__pycache__ src/drone/__pycache__ src/__pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv llm_sdk/__pycache__ poetry.lock uv.lock logs.txt
+	rm -rf __pycache__ src/motor/Instances/__pycache__ src/motor/__pycache__ src/drone/__pycache__ src/__pycache__ .mypy_cache .pytest_cache $(ModuleFile)/__pycache__ .vscode $(RESULTFILE) .venv poetry.lock uv.lock logs.txt
 
 lint:
 	$(MYPY) ./src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

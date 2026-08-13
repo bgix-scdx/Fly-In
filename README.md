@@ -103,3 +103,7 @@ The screen make it very easy so see all cells and drones are they are visually v
 
  == Turn 36 ==
 D17-impossible_goal D18-final_torture5 D19-final_torture4 D20-final_torture3 D21-final_torture2 D22-final_torture1 D23-final_merge D24-conv_restricted9
+
+# Project Meme
+
+![Image](./assets/readme-meme.jpg)

@@ -85,7 +85,7 @@ class screen():
             changed[1] = 1
             if self.speed.y > -self.maxspeed:
                 self.speed.y -= self.maxspeed / steps
-        elif keys[pygame.K_z]:
+        elif keys[pygame.K_w]:
             changed[1] = 1
             if self.speed.y < self.maxspeed:
                 self.speed.y += self.maxspeed / steps
@@ -93,7 +93,7 @@ class screen():
             changed[0] = 1
             if self.speed.x > -self.maxspeed:
                 self.speed.x -= self.maxspeed / steps
-        elif keys[pygame.K_q]:
+        elif keys[pygame.K_a]:
             changed[0] = 1
             if self.speed.x < self.maxspeed:
                 self.speed.x += self.maxspeed / steps

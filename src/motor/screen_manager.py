@@ -6,7 +6,9 @@ from threading import Thread
 
 
 class screen():
+    '''Handle the visual sceen of Pygames'''
     def __init__(self, resolution: int, exec: Callable[[Any], Any]):
+        '''Set up all default settings'''
         print("Starting Screen...")
         self.res = resolution
         self.running = True
@@ -26,6 +28,7 @@ class screen():
             raise KeyboardInterrupt
 
     def ScreenLoop(self) -> None:
+        '''Initiate the screen loop and handle the execution'''
         pygame.init()
         self.screen = pygame.display.set_mode((0, 0))
 # pygame.FULLSCREEN)
@@ -67,9 +70,11 @@ class screen():
         return newscene
 
     def ChangeScene(self, scene: Scene) -> None:
+        '''Change the current scene to the one sent'''
         self.current = scene
 
     def KeyHeld(self) -> None:
+        '''Handle Keyboard Movements to move on the screen.'''
         if not self.current.Freecam:
             self.speed = pygame.Vector2(0, 0)
             return
@@ -107,34 +112,3 @@ class screen():
                     self.speed[i] -= self.maxspeed / steps
                 elif self.speed[i] < 0:
                     self.speed[i] += self.maxspeed / steps
-
-# for event in pygame.event.get():
-#                 if event.type == pygame.QUIT:
-#                     self.running = False
-#                 if event.type == pygame.MOUSEBUTTONUP:
-#                     if event.button == 4:
-#                         self.maxspeed += 1
-#                     elif event.button == 5:
-#                         if self.maxspeed > 1:
-#                             self.maxspeed -= 1
-#                 elif event.type == pygame.KEYDOWN:
-#                     if event.key == pygame.K_ESCAPE and self.fullscreen:
-#                         self.running = False
-#                     if event.key == pygame.K_n and self.fullscreen:
-#                         if self.current == self.scenes["baka"]:
-#                             self.scenes["baka"]["position"] = self.center
-#                             self.current = self.scenes["main"]
-#                             self.center = self.current["position"]
-#                         else:
-#                             self.scenes["main"]["position"] = self.center
-#                             self.current = self.scenes["baka"]
-#                             self.center = self.current["position"]
-#                     if event.key == pygame.K_TAB and not self.fullscreen:
-#                         self.screen = pygame.display.set_mode((0, 0),
-#                                                           pygame.FULLSCREEN)
-#                         self.fullscreen = True
-#                     elif event.key == pygame.K_TAB and self.fullscreen:
-#                         self.screen = pygame.display.set_mode((self.res * 16,
-#                                                              self.res * 10),
-#                                                                pygame.SCALED)
-#                         self.fullscreen = False

@@ -9,11 +9,8 @@ from ..screen_manager import screen
 from typing import Callable
 
 
-class InstanceType:
-    pass
-
-
 class EasingStyle(Enum):
+    '''Multiple easying styles for tweens'''
     @staticmethod
     def Linear(t: float) -> float:
         return t
@@ -32,6 +29,7 @@ class EasingStyle(Enum):
 
 
 class EasingDirection(Enum):
+    '''Multiple easying direction for tweens'''
     @staticmethod
     def In(t: float, shape: Callable[[float], float]) -> float:
         return shape(t)
@@ -51,6 +49,7 @@ class EasingDirection(Enum):
 
 
 class Instance(ABC):
+    '''Instance is the base class for every visual things.'''
     from ..Color import Color
     name: str = "Instance"
     position: Vector2 = Vector2(0, 0)
@@ -59,6 +58,7 @@ class Instance(ABC):
     Parent: Any
 
     def __init__(self, name: str):
+        '''Start the instance'''
         self.name = name
         self.color = self.Color(255, 255, 255)
 
@@ -69,6 +69,8 @@ class Instance(ABC):
     def tween(self, targets: Dict[str, Any],
               duration: str, Type: Any = EasingStyle.Linear,
               Direction: Any = EasingDirection.In) -> None:
+        '''Smoothly tween an object from one settings
+        to an other in an other thread'''
         while self.__tween:
             sleep(0.001)
         self.__tween = Thread(target=self.tweenThread)
@@ -78,6 +80,7 @@ class Instance(ABC):
         self.__tween.start()
 
     def tweenThread(self) -> None:
+        '''Execute the tween.'''
         started = time()
         base = {}
         targets = self.__tween.targets

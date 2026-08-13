@@ -5,6 +5,7 @@ from typing import Any
 
 
 class Square(Instance):
+    '''A default colored square'''
     size: Vector2 = Vector2(10, 10)
     orientation: int = 0
     border_size: int = 0
@@ -20,6 +21,7 @@ class Square(Instance):
 
 
 class Line(Instance):
+    '''Draw a line between size and position'''
     size: Vector2 = Vector2(10, 10)
     orientation: int = 0
     border_size: int = 0
@@ -35,6 +37,7 @@ class Line(Instance):
 
 
 class Image(Instance):
+    '''Load an image as a square'''
     size: Vector2 = Vector2(10, 10)
     orientation: int = 0
     texture = None
@@ -56,6 +59,7 @@ class Image(Instance):
 
 
 class Text(Instance):
+    '''Make text'''
     text = "Text"
     size = 20
 

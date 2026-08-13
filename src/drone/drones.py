@@ -9,6 +9,7 @@ import math
 
 
 class Drone():
+    '''Drones move along a given path untils they reach their destinations.'''
     Current: Cell
     Previous: Cell
     Next: Cell
@@ -72,7 +73,7 @@ class Drone():
             self.MoveAlong()
 
     def MoveAlong(self) -> None:
-        ''''''
+        '''Make the drone check the next cell and move along the path.'''
         if not self.Path:
             return
         nextcell = None
@@ -158,6 +159,8 @@ class Drone():
             self.Next.Insert(self)
 
     def get_valid_path(self) -> None:
+        '''Get the best valid path, this set the drone at the start of the path
+        used to first give a path to the drone.'''
         if not self.PrecalculatedPaths:
             return
         chosen = math.inf
@@ -192,7 +195,7 @@ class Drone():
                         continue
 
     def moveimg(self) -> str:
-        '''Vissibly move the drone on the visual'''
+        '''Vissibly move the drone on the visual screen'''
         if not self.Next or not self.Active or self.DesinationReached:
             return ""
         size = self.Settings.get("size")

@@ -3,6 +3,7 @@ import os
 
 
 def Parse_Hub(text: List[str]) -> Dict[str, Any]:
+    '''Get all valid info from a hub'''
     result: Dict[str, Any] = {
         "name": text[1],
         "position": [int(text[2]), int(text[3])],
@@ -15,6 +16,7 @@ def Parse_Hub(text: List[str]) -> Dict[str, Any]:
 
 
 def Parse_Connection(text: List[str]) -> Dict[str, Any]:
+    '''Get all valid info from a connection'''
     connection = text[1].split("-")
     max_drones = 1
     if len(text) > 2:
@@ -23,6 +25,8 @@ def Parse_Connection(text: List[str]) -> Dict[str, Any]:
 
 
 def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
+    '''Parse the file to store all info like droneshubs'''
+    ''' and handle errors related to json'''
     result: Dict[str, Any] = {
         "map": name,
         "connections": [],
@@ -59,6 +63,7 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
 def Loop_Through(dir: str = "maps", filename: str = "",
                  final: Dict[str, Dict[str, Any] | None] = {}
                  ) -> Dict[str, Any]:
+    '''Loop through all map in the files to store and return them as a dict'''
     if not os.path.isdir(dir) and os.path.isfile(dir):
         try:
             final[dir] = Parse_File(dir, filename)

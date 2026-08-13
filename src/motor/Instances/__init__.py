@@ -1,5 +1,5 @@
-from .Instance import InstanceType, Instance, EasingStyle, EasingDirection
+from .Instance import Instance, EasingStyle, EasingDirection
 from .square import Square, Line, Image, Text
 
-__all__ = ["InstanceType", "Instance", "Line",
+__all__ = ["Instance", "Line",
            "EasingDirection", "EasingStyle", "Square", "Text", "Image", "Line"]

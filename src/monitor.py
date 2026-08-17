@@ -247,9 +247,12 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
     drone_count = raw_map.get("nb_drones")
     if not drone_count or not cell_size or not cell_border:
         return None
-    starting_cells = map["Cells"].get("start")
-    ending_cells = (map["Cells"].get("goal")
-                    or map["Cells"].get("impossible_goal"))
+    try:
+        starting_cells = map["Cells"].get("start")
+        ending_cells = (map["Cells"].get("goal")
+                        or map["Cells"].get("impossible_goal"))
+    except KeyError:
+        return None
     if not starting_cells or not ending_cells:
         print("\033[38;2;255mNo starting pos or ending pos.\033[0m")
         return None
@@ -265,6 +268,7 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
         drone.PrecalculatedPaths = path
         drone.Current = starting_cells
         drone.FlyTime = drone_settings.get("drone_tween_time")
+        drone.AllowConnection = drone_settings.get("allow_connection_wait")
         drone_img = Square(f"drone{i}")
         drone_img.size = Vector2(drone_size, drone_size)
         drone_img.color = Color(255, 255, 255)

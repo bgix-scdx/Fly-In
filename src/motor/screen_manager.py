@@ -29,6 +29,7 @@ class screen():
 
     def ScreenLoop(self) -> None:
         '''Initiate the screen loop and handle the execution'''
+        sensibility = 0.025
         pygame.init()
         self.screen = pygame.display.set_mode((0, 0))
 # pygame.FULLSCREEN)
@@ -47,9 +48,10 @@ class screen():
                         self.running = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:
-                        self.current.Zoom += 0.1
-                    elif event.button == 5 and self.current.Zoom >= 0.1:
-                        self.current.Zoom -= 0.1
+                        self.current.Zoom += sensibility
+                    elif (event.button == 5
+                          and self.current.Zoom >= sensibility):
+                        self.current.Zoom -= sensibility
             try:
                 for obj in self.current.Objects.values():
                     obj.execute(self)

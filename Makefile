@@ -2,7 +2,7 @@
 .PHONY: install run debug clean lint lint-strict
 
 MAIN := Fly-In
-VENV := $(MAIN)-venv
+VENV := ".venv"
 PYTHON := $(VENV)/bin/python3
 PIP := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
@@ -15,12 +15,10 @@ MAP := "maps/easy/01_linear_path.txt"
 install:
 	@echo "Installing Project $(MAIN)"
 	python3 -m venv $(VENV)
-	chmod 777 $(VENV)/bin/activate 
-	$(VENV)/bin/activate
 	$(PIP) install --upgrade pip
-	$(PIP) install -r requirement.txt
+	$(PIP) install poetry
 	$(VENV)/bin/poetry config cache-dir $(VENV)/poetrycache
-# 	 $(VENV)/bin/poetry install
+	$(VENV)/bin/poetry install
 	$(VENV)/bin/uv sync
 
 run:

@@ -23,6 +23,7 @@ class Drone():
     DesinationReached: bool = False
     PrecalculatedPaths: Dict[int, List[Cell]] | None = None
     FlyTime: float = 0.1
+    AllowConnection: bool = False
     InConnection: bool = False
     Steps: int
     Active = False
@@ -55,7 +56,7 @@ class Drone():
                 self.Active = True
                 self.InConnection = True
                 self.Next.Insert(self)
-                if self.Connect:
+                if self.Connect and self.AllowConnection:
                     self.Connect.Remove(self)
                     self.Connect = None
                 return
@@ -97,7 +98,7 @@ class Drone():
 
         oknext = nextcell.isOk() or nextcell is self.Target
 
-        if (oknext and nextcell.Zone and nextco.isOk()):
+        if (oknext and nextco.isOk()):
             if self.Next:
                 self.Next.Remove(self)
             if self.Connect:
@@ -107,7 +108,8 @@ class Drone():
             self.Next = nextcell
             self.Next.Insert(self)
         elif (not oknext and nextcell.Zone
-                is ZoneType.restricted and nextco.isOk()):
+                is ZoneType.restricted and nextco.isOk()
+                and self.AllowConnection):
             if self.Next:
                 self.Next.Remove(self)
             if self.Connect:

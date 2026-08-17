@@ -1,6 +1,0 @@
-poetry
-uv
-pydantic
-mypy
-pygame
-flake8

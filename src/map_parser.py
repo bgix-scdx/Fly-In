@@ -2,12 +2,14 @@ from typing import Any, Dict, List
 import os
 
 
-def Parse_Hub(text: List[str], RawMap: Dict[str, Any]) -> Dict[str, Any]:
+def Parse_Hub(text: List[str], RawMap: Dict[str, Any],
+              line: int) -> Dict[str, Any]:
     '''Get all valid info from a hub'''
     result: Dict[str, Any] = {
         "name": text[1],
         "position": [int(text[2]), int(text[3])],
-        "settings": {}
+        "settings": {},
+        "file_line": line
     }
     for val in text[4:]:
         if '#' in val:
@@ -21,13 +23,14 @@ def Parse_Hub(text: List[str], RawMap: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def Parse_Connection(text: List[str]) -> Dict[str, Any]:
+def Parse_Connection(text: List[str], line: int) -> Dict[str, Any]:
     '''Get all valid info from a connection'''
     connection = text[1].split("-")
     max_drones = 1
     if len(text) > 2:
         max_drones = int(text[2].split("=")[1].split("]")[0])
-    return {"connection": connection, "max_drone": max_drones}
+    return {"connection": connection, "max_drone": max_drones,
+            "file_line": line}
 
 
 def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
@@ -40,22 +43,27 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
         "StartingCell": None,
         "EndingCell": None
     }
+    line = 0
     try:
         with open(filepath, "r") as f:
             lines = f.readlines()
+            line = 0
             for text in lines:
+                line += 1
                 if text[0] == '#':
                     continue
                 if text == "\n" or text == "":
                     continue
                 splittxt = text.split()
                 if "hub" in splittxt[0]:
-                    result["cells"].append(Parse_Hub(splittxt, result))
+                    result["cells"].append(Parse_Hub(splittxt, result, line))
                 elif "connection" in splittxt[0]:
-                    result["connections"].append(Parse_Connection(splittxt))
+                    result["connections"].append(Parse_Connection(splittxt,
+                                                                  line))
                 elif "nb_drones" in splittxt[0]:
                     if int(splittxt[1]) >= 100:
-                        print("\033[38;2;255mDrone numbers must "
+                        print(f"\033[38;2;255m[line {line}] "
+                              "Drone numbers must "
                               "be inferior to 100.\033[0m")
                         return None
                     result["nb_drones"] = int(splittxt[1])
@@ -71,6 +79,10 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
     except PermissionError as e:
         print(f"No permission to open {e.filename}.")
         return None
+    except (IndexError, ValueError):
+        print("\033[38;2;255;255mUnexpected error occured while "
+              f"loading line {line} !\033[0m")
+        raise IndexError
     if not result.get("StartingCell") or not result.get("EndingCell"):
         print(f"\033[38;2;255mMap {name} need a start and an "
               "end (start_hub | end_hub)\033[0m")
@@ -88,7 +100,7 @@ def Loop_Through(dir: str = "maps", filename: str = "",
                 return final
             final[dir] = Parse_File(dir, filename)
         except (IndexError, ValueError):
-            print(f"\033[38;2;255;255mFile: {dir} is invalid !\033[0m")
+            print(f"\033[38;2;255;255m - File: {dir} is invalid !\033[0m")
     elif os.path.isdir(dir):
         for _, file in enumerate(os.listdir(dir)):
             final = Loop_Through(dir + "/" + file, file)

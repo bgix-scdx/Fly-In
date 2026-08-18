@@ -36,14 +36,16 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
                 cell.Color3 = getattr(ColorPallet,
                                       color).value
             else:
-                print(f"\033[38;2;255m - Color '{color}' not found.\033[0m")
+                print(f"\033[38;2;255m [line {celldata["file_line"]}] "
+                      f"Color '{color}' not found.\033[0m")
                 return None, None
             if (zone and hasattr(ZoneType, celldata["settings"].get("zone"))):
                 cell.Zone = getattr(ZoneType, zone)
             if (celldata["settings"].get("max_drones")):
                 temp = int(celldata["settings"].get("max_drones"))
-                if temp < 0:
-                    print("\033[38;2;255m - Cell's max drones "
+                if temp <= 0:
+                    print(f"\033[38;2;255m [line {celldata["file_line"]}] "
+                          "Cell's max drones "
                           "can't be inferior to 1\033[0m")
                     return None, None
                 cell.MaxDrone = temp
@@ -58,11 +60,12 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
                 for name2 in connection.get("connection"):
                     if connectname == name2:
                         continue
-                    connect_count = (1 if not connection.get("max_drone")
-                                     else connection.get("max_drone"))
+                    connect_count = connection.get("max_drone")
                     cell2: Cell = map[name]["Cells"][name2]
                     if connect_count <= 0:
-                        print("\033[38;2;255m - Connection can't be "
+                        print("\033[38;2;255m [line "
+                              f"{connection.get("file_line")}] "
+                              "Connection can't be "
                               "inferior to 1\033[0m")
                         return None, None
                     connect = Connection()

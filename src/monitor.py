@@ -22,6 +22,8 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
         map[name] = {}
 
         map[name]["Cells"] = {}
+        map[name]["StartingCell"] = raw_map[name].get("StartingCell")
+        map[name]["EndingCell"] = raw_map[name].get("EndingCell")
         for cell in parsedmap["cells"]:
             celldata = cell
             cell = Cell()
@@ -34,14 +36,15 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
                 cell.Color3 = getattr(ColorPallet,
                                       color).value
             else:
-                print(f"-> Color {color} not found")
+                print(f"\033[38;2;255m - Color '{color}' not found.\033[0m")
                 return None, None
             if (zone and hasattr(ZoneType, celldata["settings"].get("zone"))):
                 cell.Zone = getattr(ZoneType, zone)
             if (celldata["settings"].get("max_drones")):
                 temp = int(celldata["settings"].get("max_drones"))
                 if temp < 0:
-                    print(f"Invalid cell max drones: {temp} must be > 0")
+                    print("\033[38;2;255m - Cell's max drones "
+                          "can't be inferior to 1\033[0m")
                     return None, None
                 cell.MaxDrone = temp
             cell.Position = Vector2(celldata["position"][0],
@@ -58,7 +61,10 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
                     connect_count = (1 if not connection.get("max_drone")
                                      else connection.get("max_drone"))
                     cell2: Cell = map[name]["Cells"][name2]
-
+                    if connect_count <= 0:
+                        print("\033[38;2;255m - Connection can't be "
+                              "inferior to 1\033[0m")
+                        return None, None
                     connect = Connection()
                     connect.Parent = cell1
                     connect.Target = cell2
@@ -248,9 +254,8 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
     if not drone_count or not cell_size or not cell_border:
         return None
     try:
-        starting_cells = map["Cells"].get("start")
-        ending_cells = (map["Cells"].get("goal")
-                        or map["Cells"].get("impossible_goal"))
+        starting_cells = map["Cells"].get(map.get("StartingCell"))
+        ending_cells = map["Cells"].get(map.get("EndingCell"))
     except KeyError:
         return None
     if not starting_cells or not ending_cells:
@@ -292,7 +297,7 @@ def start() -> None:
     try:
         mapdata, raw_map = getmapdata(Loop_Through())
     except KeyError:
-        print("\033[38;2;255mInvalid File.\033[0m")
+        print("\033[38;2;255mFile Parsing Error.\033[0m")
         visual.running = False
         return
     if not mapdata or not raw_map:
@@ -312,8 +317,9 @@ def start() -> None:
     visual.ChangeScene(mapscenes[selected])
 
     map = mapdata[selected]
-    goal = map["Cells"].get("goal") or map["Cells"].get("impossible_goal")
-    paths = CheckPossiblePath(map["Cells"]["start"], None, goal, [], 0, [])
+    goal = map["Cells"][map.get("EndingCell")]
+    paths = CheckPossiblePath(map["Cells"][map.get("StartingCell")],
+                              None, goal, [], 0, [])
     sorted_paths: Dict[int, List[Cell]] = {}
     for chain in paths:
         steps = int(chain[len(chain)-1])
@@ -347,6 +353,7 @@ def start() -> None:
     turn = 0
     reached = 0
     final_text = ""
+    log = ""
     sleep(1)
     while visual.running and reached < len(drone_list):
         turn += 1
@@ -367,6 +374,7 @@ def start() -> None:
         final_text += f" == Turn {turn} ==\n{log}\n\n"
         ProgessBar(reached, len(drone_list))
         sleep(1)
+    final_text += f" == Turn {turn} ==\n{log}\n\n"
     if not visual.running:
         return
     spaces = " " * (int(len(drone_list) / 2) - int((len(text)) / 2) + 2)
@@ -420,8 +428,7 @@ def CheckPossiblePath(Current: Cell, Last: Cell | None,
             continue
         elif current_zone is ZoneType.restricted:
             addedsteps += 2
-        elif (current_zone is ZoneType.normal or
-              current_zone is ZoneType.priority):
+        elif (current_zone is ZoneType.normal):
             addedsteps += 1
         addedsteps += Steps
         GoalPaths += CheckPossiblePath(current.Target, Current, Target,

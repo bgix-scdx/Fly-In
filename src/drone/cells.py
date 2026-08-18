@@ -90,7 +90,6 @@ class Cell():
     def Remove(self, drone: Any) -> None:
         '''Remove the drone from the drone list'''
         if drone not in self.Drones:
-            print("Tryed to remove cell that is not stored.")
             return
         self.Drones.remove(drone)
 

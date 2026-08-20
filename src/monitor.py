@@ -52,6 +52,10 @@ def getmapdata(raw_map: Dict[str, Any]) -> Any:
             cell.Position = Vector2(celldata["position"][0],
                                     celldata["position"][1])
             cell.Name = celldata["name"]
+            if map[name]["Cells"].get(cell.Name):
+                print(f"\033[38;2;255m [line {celldata["file_line"]}] "
+                      f"Duplicated name cell '{cell.Name}'.\033[0m")
+                return None, None
             map[name]["Cells"][cell.Name] = cell
 
         for connection in parsedmap["connections"]:
@@ -255,6 +259,7 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
 
     drone_count = raw_map.get("nb_drones")
     if not drone_count or not cell_size or not cell_border:
+        print("\033[38;2;255mInvalid drone configs !\033[0m")
         return None
     try:
         starting_cells = map["Cells"].get(map.get("StartingCell"))
@@ -284,7 +289,7 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
         drone.Image = drone_img
         drone_img.position = (Vector2(starting_cells.Position[0],
                                       starting_cells.Position[1])
-                              * cell_size
+                              * (cell_size * 2)
                               + Vector2(cell_size/4, cell_size/4))
         drone_list.append(drone)
         starting_cells.Drones.append(drone)

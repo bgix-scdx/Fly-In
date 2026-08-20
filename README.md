@@ -3,11 +3,16 @@
 # <center>**Fly-In**</center>
 ![Image](./assets/42.jpg)
 
-![Version](https://img.shields.io/badge/version-1.0-blue)
+![Version](https://img.shields.io/badge/version-2.0-blue)
 ![Language](https://img.shields.io/badge/python-0?logo=python&logoColor=white)
 
- - [Description](#description)
 
+ - [Description](#description)
+ - [Instructions](#instructions)
+ - [Resources](#Resources)
+ - [Algorithm](#Algorithm)
+ - [Visual Representation](#Visual_Representation)
+ - [Input and Output](#Input_and_Output)
 ## <center>Description</center>
 
 ```
@@ -55,7 +60,7 @@ connection: testing_cell1-testing_cell2 [max_link_capacity=2]
 
 Connections are links between two cells, by default they have a drone capacity of one, but with the setting [max_link_capacity=x] it can be changed
 
-# Instuctions
+# Instructions
 
 To start the project, you must use
 
@@ -81,7 +86,7 @@ to clean the file back to its first git imported state.
  - peer to peer.
  - Various niche website about path finding.
 
-# Algorythm
+# Algorithm
 
 My algorythm is relatively simple.
 i calculate all possible paths, sort them from shortest to longest, and assign it to the drones.
@@ -90,7 +95,7 @@ The drone will then move along the paths, but before it will check the cell ahea
 
 If no path are found that from the start to the end, the program will stops.
 
-# Visual Representation
+# Visual_Representation
 
 The screen make it very easy so see all cells and drones are they are visually visible
 

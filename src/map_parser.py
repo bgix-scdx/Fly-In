@@ -54,7 +54,7 @@ def Parse_File(filepath: str, name: str) -> Dict[str, Any] | None:
                     continue
                 if text == "\n" or text == "":
                     continue
-                splittxt = text.split()
+                splittxt = text.split("#")[0].split()
                 if "hub" in splittxt[0]:
                     result["cells"].append(Parse_Hub(splittxt, result, line))
                 elif "connection" in splittxt[0]:

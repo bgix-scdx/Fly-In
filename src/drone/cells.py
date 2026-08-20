@@ -1,7 +1,7 @@
 from typing import Dict, List, Any
 from pygame import Vector2
-from ..motor.Color import Color  # type: ignore[misc]
-from ..motor.Instances import Instance  # type: ignore[misc]
+from ..motor.Color import Color
+from ..motor.Instances import Instance
 from enum import Enum
 
 
@@ -32,11 +32,11 @@ class Connection():
             return False
         return True
 
-    def Insert(self, cell: "Cell") -> None:
+    def Insert(self, cell: Any) -> None:
         '''Add a drone to the drone slots'''
         self.Drones.append(cell)
 
-    def Remove(self, cell: "Cell") -> None:
+    def Remove(self, cell: Any) -> None:
         '''Remove a drone from the drone slots'''
         if cell not in self.Drones:
             print("\033[38;2;125;255m -> Tryed to remove a cell.\033[0m")

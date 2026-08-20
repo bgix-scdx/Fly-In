@@ -1,13 +1,13 @@
 import pygame
 from math import floor
 from .Scene import Scene
-from typing import Callable, List, Any
+from typing import Callable, List
 from threading import Thread
 
 
 class screen():
     '''Handle the visual sceen of Pygames'''
-    def __init__(self, resolution: int, exec: Callable[[Any], Any]):
+    def __init__(self, resolution: int, exec: Callable[[], None]):
         '''Set up all default settings'''
         print("Starting Screen...")
         self.res = resolution

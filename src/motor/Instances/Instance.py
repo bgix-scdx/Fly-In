@@ -67,7 +67,7 @@ class Instance(ABC):
         pass
 
     def tween(self, targets: Dict[str, Any],
-              duration: str, Type: Any = EasingStyle.Linear,
+              duration: int | float, Type: Any = EasingStyle.Linear,
               Direction: Any = EasingDirection.In) -> None:
         '''Smoothly tween an object from one settings
         to an other in an other thread'''

@@ -14,7 +14,7 @@ from threading import Thread
 
 def getmapdata(raw_map: Dict[str, Any]) -> Any:
     '''Turn the raw map data into a well organised dict'''
-    map: Dict[str, Dict[str, Cell]] = {}
+    map: Dict[str, Dict[str, Dict[str, Any]]] = {}
     for name in raw_map:
         parsedmap = raw_map.get(name)
         if not parsedmap:
@@ -142,10 +142,13 @@ def make_cells_scenes(visual: screen,
         local_scene.Zoom = 1
         connections: Dict[str, bool] = {}
         for connection_name in maps[map_name]["Cells"]:
-            cell1 = maps[map_name]["Cells"][connection_name]
-            connect: Connection = cell1.Connections
+            cell1: Cell = maps[map_name]["Cells"][connection_name]
+            connect = cell1.Connections
             for name in connect:
-                cell2: Cell = connect.get(name).Target
+                tmp = connect.get(name)
+                if not tmp:
+                    continue
+                cell2: Cell = tmp.Target
                 if (connections.get(f"{cell1.Name}-{cell2.Name}")
                         or connections.get(f"{cell2.Name}-{cell1.Name}")):
                     continue
@@ -167,10 +170,13 @@ def make_cells_scenes(visual: screen,
                 local_scene.Add(line)
 
         for connection_name in maps[map_name]["Cells"]:
-            ncell1 = maps[map_name]["Cells"][connection_name]
-            nconnect: Connection = ncell1.Connections
+            ncell1: Cell = maps[map_name]["Cells"][connection_name]
+            nconnect: Dict[str, Connection] = ncell1.Connections
             for name in nconnect:
-                ncell2: Cell = nconnect.get(name).Target
+                tmp = nconnect.get(name)
+                if not tmp:
+                    continue
+                ncell2: Cell = tmp.Target
                 if ncell2.Zone is not ZoneType.restricted:
                     continue
                 for index in range(ncell2.Zone.value - 1):
@@ -245,7 +251,7 @@ def make_cells_scenes(visual: screen,
     return map_scenes
 
 
-def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
+def create_drones(raw_map: Dict[str, Any], map: Dict[str, Any],
                   scene: Scene, path: Any) -> List[Drone] | None:
     '''Create and setup all drone for usage'''
     cell_settings = load_settings("settings/cells.json")
@@ -254,16 +260,16 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
     if not cell_settings or not drone_settings:
         return None
 
-    cell_size = cell_settings.get("cell_size")
-    cell_border = cell_settings.get("cell_border")
+    cell_size: int | float = cell_settings.get("cell_size")
+    cell_border: int | float = cell_settings.get("cell_border")
 
     drone_count = raw_map.get("nb_drones")
     if not drone_count or not cell_size or not cell_border:
         print("\033[38;2;255mInvalid drone configs !\033[0m")
         return None
     try:
-        starting_cells = map["Cells"].get(map.get("StartingCell"))
-        ending_cells = map["Cells"].get(map.get("EndingCell"))
+        starting_cells: Cell = map["Cells"].get(map.get("StartingCell"))
+        ending_cells: Cell = map["Cells"].get(map.get("EndingCell"))
     except KeyError:
         return None
     if not starting_cells or not ending_cells:
@@ -273,11 +279,10 @@ def create_drones(raw_map: Dict[str, Any], map: Dict[str, Cell],
     drone_size = (cell_size - cell_border) / 2
     drone_list = []
     for i in range(drone_count):
-        drone = Drone(starting_cells, ending_cells, ending_cells,
+        drone = Drone(starting_cells, ending_cells,
                       {"size": cell_size, "inner": cell_size - drone_size},
                       path, i)
         drone.Name = f"Drone {i+1}"
-        drone.Position = Vector2(0, 0)
         drone.PrecalculatedPaths = path
         drone.Current = starting_cells
         drone.FlyTime = drone_settings.get("drone_tween_time")
@@ -334,10 +339,10 @@ def start() -> None:
         if not sorted_paths.get(steps):
             sorted_paths[steps] = []
         sorted_paths[steps].append(chain[0:-1])  # Remove the steps
-    target = 0
-    i = None
+    target: int | Cell = 0
+    i = 9000000
     for i in sorted_paths:
-        if i <= target:
+        if isinstance(target, int) and i <= target:
             target = i
     if not i:
         print("No valid paths found.")
@@ -345,7 +350,7 @@ def start() -> None:
         return
     if sorted_paths.get(i):
         p = sorted_paths.get(i)
-        if isinstance(p, list):
+        if p and isinstance(p, list):
             target = p[0]
     else:
         print("Invalid Path, no end reachable")
@@ -371,11 +376,11 @@ def start() -> None:
         print("\033[2J")
         print(f"\n\033[38;2;255m{spaces}{text}\033[0m\n")
         reached = 0
-        for i in drone_list:
-            i.Move()
-        for i in drone_list:
-            log += i.moveimg()
-            if i.DesinationReached:
+        for dr in drone_list:
+            dr.Move()
+        for dr in drone_list:
+            log += dr.moveimg()
+            if dr.DesinationReached:
                 reached += 1
         if reached >= len(drone_list):
             break
@@ -428,6 +433,8 @@ def CheckPossiblePath(Current: Cell, Last: Cell | None,
     for i in connection:
         addedsteps = 0
         current = connection.get(i)
+        if not current:
+            continue
         current_zone = current.Target.Zone
         if not CheckValidity(current.Target, current, Last, Path):
             continue

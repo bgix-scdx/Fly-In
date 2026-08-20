@@ -3,7 +3,7 @@
 # <center>**Fly-In**</center>
 ![Image](./assets/42.jpg)
 
-![Version](https://img.shields.io/badge/version-2.0-blue)
+![Version](https://img.shields.io/badge/version-1.3-blue)
 ![Language](https://img.shields.io/badge/python-0?logo=python&logoColor=white)
 
 
@@ -106,8 +106,10 @@ The screen make it very easy so see all cells and drones are they are visually v
 
 ### Output
 
+```
  == Turn 36 ==
 D17-impossible_goal D18-final_torture5 D19-final_torture4 D20-final_torture3 D21-final_torture2 D22-final_torture1 D23-final_merge D24-conv_restricted9
+```
 
 # Project Meme
 
